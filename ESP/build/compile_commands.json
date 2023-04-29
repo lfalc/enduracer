@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/lorenz/streamlit/ESP/build",
+  "command": "/usr/bin/gcc  -I../include  -g   -o CMakeFiles/HTTP_in_C.dir/HTTP_in_C.c.o   -c /home/lorenz/streamlit/ESP/HTTP_in_C.c",
+  "file": "/home/lorenz/streamlit/ESP/HTTP_in_C.c"
+}
+]
