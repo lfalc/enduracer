@@ -20,7 +20,7 @@ def read_from_csv(csv_file: str, drivers: list = []):
                 driver = globals.Driver(name=row[0])
                 globals.drivers.append(driver)  # add the driver object to the list
 
-    # read lap clocktimes and calculate lap times
+    # read lap clocktimes and calculate relative timestamps
     with open("database_dummy.csv", newline="") as f:
         for row in data:
             lap_clocktime = float(row[1]) - start_of_race
