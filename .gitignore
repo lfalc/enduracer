@@ -4,3 +4,4 @@ __pycache__/external.cpython-311.pyc
 .gitignore
 
 __pycache__/globals.cpython-311.pyc
+streamlit.code-workspace
