@@ -1,3 +1,0 @@
-/home/lorenz/streamlit/build/CMakeFiles/rebuild_cache.dir
-/home/lorenz/streamlit/build/CMakeFiles/edit_cache.dir
-/home/lorenz/streamlit/build/CMakeFiles/HTTP_in_C.dir
