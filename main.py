@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import external as ex
-from streamlit_autorefresh import st_autorefresh
+# from streamlit_autorefresh import st_autorefresh
 import globals
 import datetime
 import calendar
