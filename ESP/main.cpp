@@ -4,26 +4,27 @@ using namespace std;
 #include <MFRC522.h>
 #include <WiFi.h>
 //#include <WebServer.h>
-//#include <HTTPClient.h>
+#include <HTTPClient.h>
 //#include <esp_http_client.h>
 #include <ArduinoJson.h>
 //#include <WiFiUdp.h>
 //#include <NTPClient.h>
-#include <time.h>
+#include <TimeLib.h>
 #include "FS.h"
 
+
+//const char *ssid = "HUAWEI-E5776-3FC7";
+//const char *password = "2B2TABT9G3Q";
+
 // Replace with your network credentials
-const char *ssid = "FRITZ!Box 7590 GE";
-const char *password = "46873571718242819466";
+ const char *ssid = "FRITZ!Box 7590 GE";
+ const char *password = "46873571718242819466";
 
 // const char *ssid = "Obi Wlan Kenobi";
 // const char *password = "Biergewitter";
 
-// Fixed IP data:
-/*const IPAddress ip(192, 168, 178, 110);
-const IPAddress gateway(192, 168, 178, 1);
-const IPAddress subnet(255, 255, 255, 0);*/
 const char *serverName = "192.168.178.125";
+const int serverPort = 5000;
 
 WiFiClient client;
 
@@ -40,25 +41,52 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 String name = "Unknown";
 String previousUid = "";
 
-// NTP server to request epoch time
-const char *ntpServer = "fritz.box";
+//----------------------------------------------------------Time------------------------------------------------
+const unsigned long updateInterval = 60000; // Zeitintervall für die Aktualisierung der Uhrzeit in Millisekunden
 
-// Variable to save current epoch time
-unsigned long epochTime;
+unsigned long previousUpdateTime = 0;
 
-// Function that gets current epoch time
-unsigned long getTime()
-{
-  time_t now;
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo))
-  {
-    // Serial.println("Failed to obtain time");
-    return (0);
-  }
-  time(&now);
-  return now;
+long currenttime;
+
+void processTime(String timeString) {
+  // Hier kannst du den empfangenen Zeitstempel verarbeiten
+  // und die interne Uhrzeit entsprechend setzen
+  // Beispiel:
+  long timestamp = timeString.toInt();
+  setTime(timestamp);
 }
+
+bool getTimeFromServer() {
+  HTTPClient http;
+  
+  // Baue die URL für die Zeitabfrage auf
+  String url = "http://" + String(serverName) + ":" + String(serverPort) + "/time";
+  
+  http.begin(url);
+  int httpCode = http.GET();
+  
+  if (httpCode == HTTP_CODE_OK) {
+    String response = http.getString();
+    Serial.println("Antwort vom Server: " + response);
+    processTime(response);
+    return true;
+  }
+  
+  return false;
+}
+
+long getCurrentTimestamp() {
+  // Gib den aktuellen Zeitstempel in Sekunden zurück
+  return now();
+}
+
+void incrementTime() {
+  // Erhöhe die interne Uhrzeit des ESP32 um eine Sekunde
+  // Du kannst diese Funktion entsprechend anpassen, um die Zeit in anderen Einheiten zu erhöhen (z.B. Minuten, Stunden usw.)
+  setTime(now() + 1);
+}
+
+//--------------------------------------------------------------------------------------------------------------
 
 void connectToWiFi()
 {
@@ -78,7 +106,7 @@ void postRequest(String name)
 {
   WiFiClient client;
 
-  if (!client.connect(serverName, 5000))
+  if (!client.connect(serverName, serverPort))
   {
     Serial.println("Connection failed");
     delay(1000);
@@ -89,7 +117,7 @@ void postRequest(String name)
 
   DynamicJsonDocument data(1024);
   data["name"] = name;
-  data["timestamp"] = epochTime;
+  data["timestamp"] = currenttime;
   String json;
   serializeJson(data, json);
 
@@ -129,7 +157,15 @@ void setup()
   // Initialize MFRC522 RFID reader
   mfrc522.PCD_Init();
 
-  configTime(0, 0, ntpServer);
+  if (getTimeFromServer()) {
+    // Zeit erfolgreich empfangen und verarbeitet
+    // Setze die interne Uhrzeit des ESP32 entsprechend
+    setTime(getCurrentTimestamp());
+    Serial.println("Erfasste Zeit: " + String(getCurrentTimestamp()));
+  } else {
+    // Fehler beim Empfangen der Zeit
+    Serial.println("Fehler beim Empfangen der Zeit");
+  }
 
   pinMode(White, OUTPUT);
   pinMode(White2, OUTPUT);
@@ -137,9 +173,8 @@ void setup()
 }
 
 void loop()
-{
-  epochTime = getTime();
-  // Check if RFID tag is detected
+{ // Check if RFID tag is detected
+  currenttime = getCurrentTimestamp();
   digitalWrite(White, LOW);
   digitalWrite(White2, LOW);
   String Vorname = "";
@@ -231,11 +266,35 @@ void loop()
       // STORE LAST NAME
       for (uint8_t i = 0; i < 16; i++)
       {
-        if (buffer1[i] != 30)
+        if (buffer2[i] != 30)
         {
           Nachname += (char)buffer2[i];
         }
       }
+      //------------------------------------------------------------------------------------------
+      //Only for Serial Output
+      // PRINT FIRST NAME
+      for (uint8_t i = 0; i < 16; i++)
+      {
+        if (buffer1[i] != 32)
+        {
+          Serial.write(buffer1[i]);
+        }
+      }
+      Serial.print(" ");
+
+      // PRINT LAST NAME
+      for (uint8_t i = 0; i < 16; i++)
+      {
+        if (buffer2[i] != 30)
+        {
+          Serial.write(buffer2[i]);
+        }
+            }
+      Serial.print(',');
+
+      //------------------------------------------------------------------------------------------
+
 
       name = Vorname + " " + Nachname;
 
