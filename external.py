@@ -78,17 +78,3 @@ def get_time():
     start_of_race = float(requests.get("http://localhost:5000/time").text)
     with open("variables.json", "w") as f:
         json.dump({"start_of_race": start_of_race}, f, indent=4)
-
-
-def set_time():
-    start_of_race = float(requests.get("http://localhost:5000/time").text)
-    with open("variables.json", "w") as f:
-        json.dump({"start_of_race": start_of_race}, f, indent=4)
-
-
-def read_variables(csv_file: str):
-    with open(csv_file, "r") as f:
-        reader = csv.reader(f)
-        data = list(reader)
-        global start_of_race
-        start_of_race = float(data[0][2])
