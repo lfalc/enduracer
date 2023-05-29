@@ -11,3 +11,9 @@ build
 LAN_test.csv
 variables.json
 variables.json
+ESP/.vscode
+.pio
+ESP/lib
+ESP/include
+ESP/test
+build
