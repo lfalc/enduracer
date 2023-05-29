@@ -23,7 +23,7 @@ def read_from_csv(csv_file: str, drivers: list = []):
     # read lap clocktimes and calculate relative timestamps
     with open("database_dummy.csv", newline="") as f:
         for row in data:
-            lap_clocktime = float(row[1]) - start_of_race
+            lap_clocktime = float(row[1]) - st.session_state.start_of_race
             globals.drivers[driver_dict.get(row[0])].lap_clocktimes.append(
                 lap_clocktime
             )
@@ -75,6 +75,6 @@ def get_files():
 
 # get time from server (for ESP32)
 def get_time():
-    start_of_race = float(requests.get("http://localhost:5000/time").text)
-    with open("variables.json", "w") as f:
-        json.dump({"start_of_race": start_of_race}, f, indent=4)
+    if 'start_of_race' not in st.session_state:
+        st.session_state.start_of_race = float(requests.get("http://localhost:5000/time").text)
+
