@@ -6,6 +6,11 @@ __pycache__/external.cpython-311.pyc
 __pycache__/globals.cpython-311.pyc
 streamlit.code-workspace
 __pycache__
+.vscode
+build
+LAN_test.csv
+variables.json
+variables.json
 ESP/.vscode
 .pio
 ESP/lib

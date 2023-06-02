@@ -35,8 +35,7 @@ button: bool = st.button(
 files: list = ex.get_files()
 option = st.selectbox("Select a database", files)
 
-ex.read_variables(option)
 table = ex.build_table(option)
 st.markdown(hide_table_row_index, unsafe_allow_html=True)
 st.table(pd.DataFrame(table[1:], columns=table[0]))
-print(globals.drivers[0].lap_times)
+# print(globals.drivers[0].lap_times)
