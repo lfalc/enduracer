@@ -35,7 +35,6 @@ WiFiClient client;
 // Set LED pins
 #define White 32
 #define White2 33
-
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 
 // Set initial name
