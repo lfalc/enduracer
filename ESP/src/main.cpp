@@ -35,11 +35,27 @@ WiFiClient client;
 // Set LED pins
 #define White 32
 #define White2 33
+#define Lichtschranke 25
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 
 // Set initial name
 String name = "Unknown";
 String previousUid = "";
+
+//-------------------------------------------Lichtschranke------------------------------------------------
+bool licht=true;
+
+bool LichtschrankenAbfrage(bool ls){
+
+  if(digitalRead(Lichtschranke)==LOW)
+  {
+      return true;
+  }
+  else  
+      return ls;
+
+}
+//--------------------------------------------------------------------------------------------------------
 
 void connectToWiFi()
 {
@@ -122,12 +138,14 @@ void setup()
 
   pinMode(White, OUTPUT);
   pinMode(White2, OUTPUT);
+  pinMode(Lichtschranke, INPUT_PULLUP);
 
 }
 
 void loop()
 { // Check if RFID tag is detected
   currenttime = getCurrentTimestamp();
+  licht=LichtschrankenAbfrage(licht);
   digitalWrite(White, LOW);
   digitalWrite(White2, LOW);
   String Vorname = "";
@@ -158,8 +176,8 @@ void loop()
       uid += String(mfrc522.uid.uidByte[i], HEX);
     }
 
-    if (uid != previousUid)
-    {
+    if (uid != previousUid && licht == true)
+    {  licht=false;
 
       //------------------------------------------- GET FIRST NAME
       status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid)); // line 834 of MFRC522.cpp file
