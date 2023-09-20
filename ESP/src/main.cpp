@@ -89,7 +89,6 @@ void connectToWiFi()
 void postRequest(String name)
 {
   WiFiClient client;
-  digitalWrite(Red_Led, LOW);
   if (!client.connect(serverName, serverPort))
   {
     Serial.println("Connection failed");
@@ -97,6 +96,8 @@ void postRequest(String name)
     delay(1000);
     return;
   }
+  digitalWrite(Red_Led, LOW);
+
 
   String url = "/receive";
 
