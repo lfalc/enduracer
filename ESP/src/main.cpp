@@ -9,9 +9,6 @@ using namespace std;
 #include "FS.h"
 #include "Realtimeclock.h"
 
-const char *ssid1 = "HUAWEI-E5776-3FC7";
-const char *password1 = "2B2TABT9G3Q";
-
 // Replace with your network credentials
 const char *ssid = "FRITZ!Box 7590 GE";
 const char *password = "46873571718242819466";
