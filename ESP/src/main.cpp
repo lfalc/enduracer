@@ -13,11 +13,11 @@ using namespace std;
 const char *ssid = "FRITZ!Box 7590 GE";
 const char *password = "46873571718242819466";
 
-// const char *ssid = "Obi Wlan Kenobi";
-// const char *password = "Biergewitter";
+const char *ssid1 = "HUAWEI-E5776-3FC7";
+const char *password1 = "2B2TABT9G3Q";
 
-// const char *serverName = "192.168.178.125";
-// const int serverPort = 5000;
+const char *ssid2 = "Name";
+const char *password2 = "Passwort";
 
 WiFiClient client;
 
@@ -40,12 +40,39 @@ String previousUid = "";
 void connectToWiFi()
 {
   // WiFi.mode(WIFI_STA);
-  Serial.println("Connecting to Wi-Fi...");
-  WiFi.begin(ssid1, password1);
+  Serial.println("Connecting to Wi-Fi 1");
+  WiFi.begin(ssid, password);
+  int WLAN1 = 0;
+  int WLAN2 = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
+    if (WLAN1 < 10)
+    {
+      WiFi.begin(ssid, password);
+      Serial.println("Connecting to WiFi...");
+      delay(1000);
+      WLAN1++;
+    }
+    else
+    {
+      Serial.println("Connecting to WiFi 2");
+      if (WLAN2 < 10)
+      {
+        WiFi.begin(ssid1, password1);
+        Serial.println("Connecting to WiFi...");
+        delay(1000);
+        WLAN2++;
+      }
+      else
+      {
+        Serial.println("Connecting to WiFi 3");
+        {
+          WiFi.begin(ssid2, password2);
+          Serial.println("Connecting to WiFi...");
+          delay(1000);
+        }
+      }
+    }
   }
   Serial.println("Connected to Wi-Fi");
   Serial.println(WiFi.localIP());
@@ -123,7 +150,6 @@ void setup()
   pinMode(White, OUTPUT);
   pinMode(White2, OUTPUT);
   pinMode(Red_Led, OUTPUT);
-
 }
 
 void loop()
@@ -161,7 +187,6 @@ void loop()
 
     if (uid != previousUid)
     {
-  
 
       //------------------------------------------- GET FIRST NAME
       status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid)); // line 834 of MFRC522.cpp file
