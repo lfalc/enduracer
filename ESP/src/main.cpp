@@ -3,23 +3,18 @@ using namespace std;
 #include <SPI.h>
 #include <MFRC522.h>
 #include <WiFi.h>
-//#include <WebServer.h>
 #include <HTTPClient.h>
-//#include <esp_http_client.h>
 #include <ArduinoJson.h>
-//#include <WiFiUdp.h>
-//#include <NTPClient.h>
 #include <TimeLib.h>
 #include "FS.h"
 #include "Realtimeclock.h"
 
-
-//const char *ssid = "HUAWEI-E5776-3FC7";
-//const char *password = "2B2TABT9G3Q";
+const char *ssid1 = "HUAWEI-E5776-3FC7";
+const char *password1 = "2B2TABT9G3Q";
 
 // Replace with your network credentials
- const char *ssid = "FRITZ!Box 7590 GE";
- const char *password = "46873571718242819466";
+const char *ssid = "FRITZ!Box 7590 GE";
+const char *password = "46873571718242819466";
 
 // const char *ssid = "Obi Wlan Kenobi";
 // const char *password = "Biergewitter";
@@ -43,15 +38,13 @@ MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 String name = "Unknown";
 String previousUid = "";
 
-//----------------------------------------------------------Time------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
 
 void connectToWiFi()
 {
-  //WiFi.mode(WIFI_STA);
+  // WiFi.mode(WIFI_STA);
   Serial.println("Connecting to Wi-Fi...");
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid1, password1);
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(1000);
@@ -89,7 +82,7 @@ void postRequest(String name)
   client.println();
   client.print(json);
 
-  //delay(500);
+  // delay(500);
 
   while (client.available())
   {
@@ -117,12 +110,15 @@ void setup()
   // Initialize MFRC522 RFID reader
   mfrc522.PCD_Init();
 
-  if (getTimeFromServer()) {
+  if (getTimeFromServer())
+  {
     // Zeit erfolgreich empfangen und verarbeitet
     // Setze die interne Uhrzeit des ESP32 entsprechend
     setTime(getCurrentTimestamp());
     Serial.println("Erfasste Zeit: " + String(getCurrentTimestamp()));
-  } else {
+  }
+  else
+  {
     // Fehler beim Empfangen der Zeit
     Serial.println("Fehler beim Empfangen der Zeit");
   }
@@ -168,6 +164,7 @@ void loop()
 
     if (uid != previousUid)
     {
+  
 
       //------------------------------------------- GET FIRST NAME
       status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid)); // line 834 of MFRC522.cpp file
@@ -233,7 +230,7 @@ void loop()
         }
       }
       //------------------------------------------------------------------------------------------
-      //Only for Serial Output
+      // Only for Serial Output
       // PRINT FIRST NAME
       for (uint8_t i = 0; i < 16; i++)
       {
@@ -251,11 +248,10 @@ void loop()
         {
           Serial.write(buffer2[i]);
         }
-            }
+      }
       Serial.print(',');
 
       //------------------------------------------------------------------------------------------
-
 
       name = Vorname + " " + Nachname;
 
