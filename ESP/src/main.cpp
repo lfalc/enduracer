@@ -35,6 +35,7 @@ WiFiClient client;
 // Set LED pins
 #define White 32
 #define White2 33
+#define Red_Led 25
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Create MFRC522 instance.
 
@@ -63,10 +64,11 @@ void connectToWiFi()
 void postRequest(String name)
 {
   WiFiClient client;
-
+  digitalWrite(Red_Led, LOW);
   if (!client.connect(serverName, serverPort))
   {
     Serial.println("Connection failed");
+    digitalWrite(Red_Led, HIGH);
     delay(1000);
     return;
   }
@@ -127,6 +129,7 @@ void setup()
 
   pinMode(White, OUTPUT);
   pinMode(White2, OUTPUT);
+  pinMode(Red_Led, OUTPUT);
 
 }
 
