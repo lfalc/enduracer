@@ -10,14 +10,14 @@ using namespace std;
 #include "Realtimeclock.h"
 
 // Replace with your network credentials
-const char *ssid = "FRITZ!Box 7590 GE";
-const char *password = "46873571718242819466";
+const char *ssid1 = "FRITZ!Box 7590 GE";
+const char *password1 = "46873571718242819466";
 
-const char *ssid1 = "HUAWEI-E5776-3FC7";
-const char *password1 = "2B2TABT9G3Q";
+const char *ssid = "EnduroRace";
+const char *password = "EnduroRace";
 
-const char *ssid2 = "Name";
-const char *password2 = "Passwort";
+const char *ssid2 = "HUAWEI-E5776-3FC7";
+const char *password2 = "2B2TABT9G3Q";
 
 WiFiClient client;
 
@@ -37,39 +37,47 @@ String previousUid = "";
 
 //--------------------------------------------------------------------------------------------------
 
+
 void connectToWiFi()
 {
   // WiFi.mode(WIFI_STA);
   Serial.println("Connecting to Wi-Fi 1");
   WiFi.begin(ssid, password);
-  int WLAN1 = 0;
-  int WLAN2 = 0;
+  int x = 0;
+  int y = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
-    if (WLAN1 < 10)
+    if (x < 10)
     {
-      WiFi.begin(ssid, password);
       Serial.println("Connecting to WiFi...");
       delay(1000);
-      WLAN1++;
+      x++;
     }
     else
     {
       Serial.println("Connecting to WiFi 2");
-      if (WLAN2 < 10)
+      WiFi.begin(ssid1, password1);
+      while (WiFi.status() != WL_CONNECTED)
       {
-        WiFi.begin(ssid1, password1);
-        Serial.println("Connecting to WiFi...");
-        delay(1000);
-        WLAN2++;
-      }
-      else
-      {
-        Serial.println("Connecting to WiFi 3");
+        if (y < 10)
         {
-          WiFi.begin(ssid2, password2);
+
           Serial.println("Connecting to WiFi...");
           delay(1000);
+          y++;
+        }
+        else
+        {
+          Serial.println("Connecting to WiFi 3");
+          WiFi.begin(ssid2, password2);
+
+          while (WiFi.status() != WL_CONNECTED)
+          {
+            {
+              Serial.println("Connecting to WiFi...");
+              delay(1000);
+            }
+          }
         }
       }
     }
