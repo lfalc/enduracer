@@ -242,9 +242,10 @@ void loop()
         mfrc522.PCD_Init();
         return;
       }
-
+      // STORE Number
+      
       // STORE FIRST NAME
-      for (uint8_t i = 0; i < 16; i++)
+      for (uint8_t i = 1; i < 16; i++)
       {
         if (buffer1[i] != 32)
         {
