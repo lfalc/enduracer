@@ -5,7 +5,7 @@
 #include <TimeLib.h>
 #include <WiFi.h>
 
-const char *serverName = "192.168.178.23";
+const char *serverName = "192.168.178.186";
 const int serverPort = 5000;
 
 const unsigned long updateInterval = 60000; // Zeitintervall für die Aktualisierung der Uhrzeit in Millisekunden

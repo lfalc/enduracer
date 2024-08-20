@@ -1,13 +1,33 @@
 import streamlit as st
 import csv
+import time
+import globals
 import pandas as pd
 import os
-import requests
 import json
-import globals
+
+START_TIME_FILE = "start_time.json"
+
+def save_start_time(start_time: float):
+    """Speichert die Startzeit in einer JSON-Datei."""
+    with open(START_TIME_FILE, "w") as f:
+        json.dump({"start_time": start_time}, f)
+
+def load_start_time() -> float:
+    """Lädt die Startzeit aus der JSON-Datei."""
+    if os.path.exists(START_TIME_FILE):
+        with open(START_TIME_FILE, "r") as f:
+            data = json.load(f)
+            return data.get("start_time", 0.0)
+    return 0.0
+
+def get_current_time() -> float:
+    """Gibt die aktuelle Zeit als Unix-Zeitstempel zurück."""
+    return time.time()
 
 
-def read_from_csv(csv_file: str, drivers: list = []):
+
+def read_from_csv(csv_file: str):
     driver_dict = {}
 
     # create driver objects and driver dictionary
@@ -15,18 +35,23 @@ def read_from_csv(csv_file: str, drivers: list = []):
         reader = csv.reader(f)
         data = list(reader)
         for row in data:
-            if row[0] not in driver_dict:
-                driver_dict.update({row[0]: len(globals.drivers)})
-                driver = globals.Driver(name=row[0])
+            driver_id = row[0]
+            name = row[1]
+            timestamp = float(row[2])
+            
+            if driver_id not in driver_dict:
+                driver_dict[driver_id] = len(globals.drivers)
+                driver = globals.Driver(name=name, driver_id=driver_id)
                 globals.drivers.append(driver)  # add the driver object to the list
 
     # read lap clocktimes and calculate relative timestamps
-    with open("database_dummy.csv", newline="") as f:
-        for row in data:
-            lap_clocktime = float(row[1]) - st.session_state.start_of_race
-            globals.drivers[driver_dict.get(row[0])].lap_clocktimes.append(
-                lap_clocktime
-            )
+    for row in data:
+        driver_id = row[0]
+        timestamp = float(row[2])
+        driver_index = driver_dict.get(driver_id)
+        if driver_index is not None:
+            lap_clocktime = timestamp - st.session_state.start_of_race
+            globals.drivers[driver_index].lap_clocktimes.append(lap_clocktime)
 
     # calculate average lap time and ranking
     for driver in globals.drivers:
@@ -34,47 +59,32 @@ def read_from_csv(csv_file: str, drivers: list = []):
             lap_time = driver.lap_clocktimes[n + 1] - driver.lap_clocktimes[n]
             driver.lap_times.append(lap_time)
         # remove empty lap time
-        driver.lap_times.pop(0)
-
-        driver.average_lap_time = sum(driver.lap_times) / len(driver.lap_times)
+        if driver.lap_times:
+            driver.lap_times.pop(0)
+        driver.average_lap_time = sum(driver.lap_times) / len(driver.lap_times) if driver.lap_times else 0
         driver.ranking = len(driver.lap_clocktimes)
 
-
-def build_table(csv_file: str, drivers: list = []):
+def build_table(csv_file: str):
     globals.drivers.clear()
-
-    read_from_csv(csv_file, globals.drivers)
-    # sort by average lap time
-    globals.drivers.sort(key=lambda x: x.average_lap_time, reverse=False)
-    # define ranking
+    read_from_csv(csv_file)
+    
+    # Sort drivers by the number of laps in descending order
+    globals.drivers.sort(key=lambda x: len(x.lap_clocktimes) - 1, reverse=True)
+    
+    # Define ranking based on the number of laps
     for ranking in range(len(globals.drivers)):
         globals.drivers[ranking].ranking = ranking + 1
-
-    # build table
-    table = [["Ranking", "Name", "Laps", "Average Lap Time"]]
+    
+    # Build table
+    table = [["Ranking", "Nr.", "Name", "Laps", "Ø-Zeit"]]
     for driver in globals.drivers:
         table.append(
             [
-                driver.ranking,
+                f"{driver.ranking}",
+                driver.driver_id,
                 driver.name,
-                len(driver.lap_clocktimes),
-                driver.average_lap_time,
+                f"{len(driver.lap_clocktimes)-1}",
+                driver.format_time(driver.average_lap_time) if driver.lap_times else 0,
             ]
         )
     return table
-
-
-# read .csv files in current directory, store in list
-def get_files():
-    files = []
-    for file in os.listdir():
-        if file.endswith(".csv"):
-            files.append(file)
-    return files
-
-
-# get time from server (for ESP32)
-def get_time():
-    if 'start_of_race' not in st.session_state:
-        st.session_state.start_of_race = float(requests.get("http://localhost:5000/time").text)
-
