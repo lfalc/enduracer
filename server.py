@@ -25,13 +25,14 @@ def receive():
     data = request.get_json()
 
     # Extract the fields from the JSON data
+    number = data["number"]
     name = data["name"]
     timestamp = data["timestamp"]
 
     # Write the data to a CSV file
     with open(filename, "a", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([name, timestamp])
+        writer.writerow([number, name, timestamp])
     return "Message received and processed."
 
 # curl -X GET http://localhost:5000/time

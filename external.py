@@ -5,7 +5,9 @@ import globals
 import pandas as pd
 import os
 import json
+import requests
 
+SERVER_URL = "http://192.168.178.186:5000/time"  # Verwende die passende URL
 START_TIME_FILE = "start_time.json"
 
 def save_start_time(start_time: float):
@@ -21,9 +23,19 @@ def load_start_time() -> float:
             return data.get("start_time", 0.0)
     return 0.0
 
-def get_current_time() -> float:
-    """Gibt die aktuelle Zeit als Unix-Zeitstempel zurück."""
-    return time.time()
+def get_current_time_from_server() -> float:
+    """Holt die aktuelle Zeit vom Server."""
+    try:
+        response = requests.get(SERVER_URL)
+        response.raise_for_status()
+        return float(response.text.strip())
+    except requests.RequestException as e:
+        st.error(f"Fehler beim Abrufen der Zeit vom Server: {e}")
+        return time.time()
+
+# def get_current_time() -> float:
+#     """Gibt die aktuelle Zeit als Unix-Zeitstempel zurück."""
+#     return time.time()
 
 
 

@@ -28,7 +28,7 @@ st.title("Schwetzendorf 2024")
 # Button zum Starten des Rennens
 if st.button("Start Race", help="Click to set the starting time of the race"):
     if st.session_state.start_of_race == 0:
-        st.session_state.start_of_race = ex.get_current_time()
+        st.session_state.start_of_race = ex.get_current_time_from_server()
         ex.save_start_time(st.session_state.start_of_race)
 
 
