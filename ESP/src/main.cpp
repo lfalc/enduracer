@@ -48,7 +48,7 @@ void connectToWiFi()
   int y = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
-    if (x < 1)
+    if (x < 10)
     {
       Serial.println("Connecting to WiFi1...");
       delay(1000);
