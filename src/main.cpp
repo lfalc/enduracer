@@ -9,6 +9,7 @@ using namespace std;
 #include "FS.h"
 #include "Realtimeclock.h"
 
+
 // Replace with your network credentials
 const char *ssid1 = "FRITZ!Box 7590 GE";
 const char *password1 = "46873571718242819466";
@@ -47,9 +48,9 @@ void connectToWiFi()
   int y = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
-    if (x < 10)
+    if (x < 1)
     {
-      Serial.println("Connecting to WiFi...");
+      Serial.println("Connecting to WiFi1...");
       delay(1000);
       x++;
     }
@@ -59,26 +60,9 @@ void connectToWiFi()
       WiFi.begin(ssid1, password1);
       while (WiFi.status() != WL_CONNECTED)
       {
-        if (y < 10)
-        {
-
-          Serial.println("Connecting to WiFi...");
+                  Serial.println("Connecting to WiFi2...");
           delay(1000);
-          y++;
-        }
-        else
-        {
-          Serial.println("Connecting to WiFi 3");
-          WiFi.begin(ssid2, password2);
-
-          while (WiFi.status() != WL_CONNECTED)
-          {
-            {
-              Serial.println("Connecting to WiFi...");
-              delay(1000);
-            }
-          }
-        }
+          y++;        
       }
     }
   }
@@ -86,7 +70,7 @@ void connectToWiFi()
   Serial.println(WiFi.localIP());
 }
 
-void postRequest(String name)
+void postRequest(String name, String number)
 {
   WiFiClient client;
   if (!client.connect(serverName, serverPort))
@@ -102,6 +86,7 @@ void postRequest(String name)
   String url = "/receive";
 
   DynamicJsonDocument data(1024);
+  data["number"] = number;
   data["name"] = name;
   data["timestamp"] = currenttime;
   String json;
@@ -128,6 +113,23 @@ void postRequest(String name)
   digitalWrite(White, HIGH);
   digitalWrite(White2, HIGH);
   delay(200); // change value if you want to read cards faster
+}
+
+String trimTrailingSpaces(String &str) {
+    int endpos = str.length() - 1;
+    // Durchlaufen des Strings von hinten nach vorne
+    while (endpos >= 0 && str[endpos] == ' ') {
+        endpos--;
+    }
+    // Entfernen der Zeichen nach der letzten nicht-leeren Stelle
+    if (endpos >= 0) {
+        str = str.substring(0, endpos + 1);
+    } else {
+        // Wenn alle Zeichen Leerzeichen waren, den String auf leer setzen
+        str = "";
+    }
+
+    return(str);
 }
 
 void setup()
@@ -168,6 +170,9 @@ void loop()
   digitalWrite(White2, LOW);
   String Vorname = "";
   String Nachname = "";
+  String Nummer ="";
+  String ShortName="";
+  String ShortNumber="";
 
   // Prepare key - all keys are set to FFFFFFFFFFFFh at chip delivery from the factory.
   MFRC522::MIFARE_Key key;
@@ -242,10 +247,42 @@ void loop()
         mfrc522.PCD_Init();
         return;
       }
+      //------------------------------------------- GET Number
+      block = 6;;
+      byte buffer3[18];
+
+      status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid)); // line 834 of MFRC522.cpp file
+      if (status != MFRC522::STATUS_OK)
+      {
+        Serial.print(F("Authentication failed: "));
+        Serial.println(mfrc522.GetStatusCodeName(status));
+
+        return;
+      }
+
+      status = mfrc522.MIFARE_Read(block, buffer3, &len);
+      if (status != MFRC522::STATUS_OK)
+      {
+        Serial.print(F("Reading failed: "));
+        Serial.println(mfrc522.GetStatusCodeName(status));
+
+        mfrc522.PCD_Reset();
+        mfrc522.PCD_Init();
+
+        return;
+      }
       // STORE Number
-      
+       for (uint8_t i = 0; i < 16; i++)
+      {
+        if (buffer3[i] != 32)
+        {
+          Nummer += (char)buffer3[i];
+          ShortNumber=trimTrailingSpaces(Nummer);
+        }
+      }
+
       // STORE FIRST NAME
-      for (uint8_t i = 1; i < 16; i++)
+      for (uint8_t i = 0; i < 16; i++)
       {
         if (buffer1[i] != 32)
         {
@@ -259,35 +296,23 @@ void loop()
         if (buffer2[i] != 30)
         {
           Nachname += (char)buffer2[i];
+
         }
       }
+      name = Vorname + " " + Nachname;
+      
+      ShortName=trimTrailingSpaces(name);
+
       //------------------------------------------------------------------------------------------
       // Only for Serial Output
-      // PRINT FIRST NAME
-      for (uint8_t i = 0; i < 16; i++)
-      {
-        if (buffer1[i] != 32)
-        {
-          Serial.write(buffer1[i]);
-        }
-      }
-      Serial.print(" ");
-
-      // PRINT LAST NAME
-      for (uint8_t i = 0; i < 16; i++)
-      {
-        if (buffer2[i] != 30)
-        {
-          Serial.write(buffer2[i]);
-        }
-      }
+      // PRINT Number
+      Serial.print(ShortNumber);
       Serial.print(',');
-
-      //------------------------------------------------------------------------------------------
-
-      name = Vorname + " " + Nachname;
-
-      postRequest(name);
+      // PRINT NAME
+      Serial.print(ShortName);
+      Serial.print(',');  
+      
+      postRequest(name, ShortNumber);
 
       previousUid = uid;
     }
