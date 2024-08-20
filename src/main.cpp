@@ -9,18 +9,15 @@ using namespace std;
 #include "FS.h"
 #include "Realtimeclock.h"
 
-const char *ssid1 = "HUAWEI-E5776-3FC7";
-const char *password1 = "2B2TABT9G3Q";
-
 // Replace with your network credentials
-const char *ssid = "FRITZ!Box 7590 GE";
-const char *password = "46873571718242819466";
+const char *ssid1 = "FRITZ!Box 7590 GE";
+const char *password1 = "46873571718242819466";
 
-// const char *ssid = "Obi Wlan Kenobi";
-// const char *password = "Biergewitter";
+const char *ssid = "EnduroRace";
+const char *password = "EnduroRace";
 
-// const char *serverName = "192.168.178.125";
-// const int serverPort = 5000;
+const char *ssid2 = "HUAWEI-E5776-3FC7";
+const char *password2 = "2B2TABT9G3Q";
 
 WiFiClient client;
 
@@ -40,15 +37,50 @@ String previousUid = "";
 
 //--------------------------------------------------------------------------------------------------
 
+
 void connectToWiFi()
 {
   // WiFi.mode(WIFI_STA);
-  Serial.println("Connecting to Wi-Fi...");
-  WiFi.begin(ssid1, password1);
+  Serial.println("Connecting to Wi-Fi 1");
+  WiFi.begin(ssid, password);
+  int x = 0;
+  int y = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
+    if (x < 10)
+    {
+      Serial.println("Connecting to WiFi...");
+      delay(1000);
+      x++;
+    }
+    else
+    {
+      Serial.println("Connecting to WiFi 2");
+      WiFi.begin(ssid1, password1);
+      while (WiFi.status() != WL_CONNECTED)
+      {
+        if (y < 10)
+        {
+
+          Serial.println("Connecting to WiFi...");
+          delay(1000);
+          y++;
+        }
+        else
+        {
+          Serial.println("Connecting to WiFi 3");
+          WiFi.begin(ssid2, password2);
+
+          while (WiFi.status() != WL_CONNECTED)
+          {
+            {
+              Serial.println("Connecting to WiFi...");
+              delay(1000);
+            }
+          }
+        }
+      }
+    }
   }
   Serial.println("Connected to Wi-Fi");
   Serial.println(WiFi.localIP());
@@ -57,7 +89,6 @@ void connectToWiFi()
 void postRequest(String name)
 {
   WiFiClient client;
-  digitalWrite(Red_Led, LOW);
   if (!client.connect(serverName, serverPort))
   {
     Serial.println("Connection failed");
@@ -65,6 +96,8 @@ void postRequest(String name)
     delay(1000);
     return;
   }
+  digitalWrite(Red_Led, LOW);
+
 
   String url = "/receive";
 
@@ -126,7 +159,6 @@ void setup()
   pinMode(White, OUTPUT);
   pinMode(White2, OUTPUT);
   pinMode(Red_Led, OUTPUT);
-
 }
 
 void loop()
@@ -164,7 +196,6 @@ void loop()
 
     if (uid != previousUid)
     {
-  
 
       //------------------------------------------- GET FIRST NAME
       status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, 4, &key, &(mfrc522.uid)); // line 834 of MFRC522.cpp file
