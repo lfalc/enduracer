@@ -81,7 +81,7 @@ def build_table(csv_file: str):
     read_from_csv(csv_file)
     
     # Sort drivers by the number of laps in descending order
-    globals.drivers.sort(key=lambda x: len(x.lap_clocktimes) - 1, reverse=True)
+    globals.drivers.sort(key=lambda x: (len(x.lap_clocktimes) - 1, -x.average_lap_time),reverse=True)
     
     # Define ranking based on the number of laps
     for ranking in range(len(globals.drivers)):
