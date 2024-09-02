@@ -4,12 +4,17 @@ import numpy as np
 import altair as alt
 import globals
 
-# Holt die Namen der Fahrer aus den globalen Daten
-driver_names = [globals.drivers[i].name for i in range(len(globals.drivers))]
-selected_driver = st.selectbox("Select a driver", driver_names)
+# Holt die Namen und Nummern der Fahrer aus den globalen Daten
+driver_names_with_numbers = [
+    f"{globals.drivers[i].driver_id} - {globals.drivers[i].name}" for i in range(len(globals.drivers))
+]
+selected_driver = st.selectbox("Select a driver", driver_names_with_numbers)
 
-# Filtert den ausgewählten Fahrer aus den globalen Daten
-driver = [d for d in globals.drivers if d.name == selected_driver]
+# Extrahiert die Nummer des ausgewählten Fahrers
+selected_driver_number = selected_driver.split(" - ")[0]
+
+# Filtert den ausgewählten Fahrer aus den globalen Daten basierend auf der Nummer
+driver = [d for d in globals.drivers if d.driver_id == selected_driver_number]
 
 def format_time(seconds):
     """Format a float time in seconds to mm:ss."""
@@ -32,6 +37,7 @@ if driver:
             "Lap time": lap_times_formatted,
             "Lap time (seconds)": lap_times_seconds,  # Rohdaten für die Sortierung
         })
+
         # Entfernen der Index-Spalte, wenn du sie nicht anzeigen möchtest
         df_display = df.reset_index(drop=True)
 
@@ -49,7 +55,7 @@ if driver:
 
         # Tabelle mit formatierten Zeiten anzeigen
         st.write("Lap times (formatted):")
-        st.write(df[["Lap", "Lap time","Lap time (seconds)"]])
+        st.write(df[["Lap", "Lap time", "Lap time (seconds)"]])
     else:
         st.write("Keine Rundenzeiten für den ausgewählten Fahrer verfügbar.")
 else:

@@ -7,7 +7,7 @@ import os
 import json
 import requests
 
-SERVER_URL = "http://192.168.178.186:5000/time"  # Verwende die passende URL
+SERVER_URL = "http://192.168.178.21:5000/time"  # Verwende die passende URL
 START_TIME_FILE = "start_time.json"
 
 def save_start_time(start_time: float):

@@ -7,6 +7,7 @@
 6. Test from separate terminal (Replacing the IP with your own): 
     curl -X POST -H "Content-Type: application/json" -d "{\"name\": \"John\",  \"timestamp\": \"1682839048.99\"}" "http://192.168.178.171:5000/receive"
 7. Inflow will be saved to "server_data.csv"
+8. streamlit run 01_main.py
 """
 
 from flask import Flask, request
